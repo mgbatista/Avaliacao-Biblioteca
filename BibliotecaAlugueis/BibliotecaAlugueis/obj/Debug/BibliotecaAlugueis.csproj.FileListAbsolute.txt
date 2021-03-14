@@ -1,0 +1,7 @@
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\obj\Debug\BibliotecaAlugueis.csprojAssemblyReference.cache
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\obj\Debug\BibliotecaAlugueis.csproj.CoreCompileInputs.cache
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\bin\Debug\BibliotecaAlugueis.exe.config
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\bin\Debug\BibliotecaAlugueis.exe
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\bin\Debug\BibliotecaAlugueis.pdb
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\obj\Debug\BibliotecaAlugueis.exe
+C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\BibliotecaAlugueis\BibliotecaAlugueis\obj\Debug\BibliotecaAlugueis.pdb
