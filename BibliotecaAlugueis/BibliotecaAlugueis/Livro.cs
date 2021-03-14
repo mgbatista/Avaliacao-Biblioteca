@@ -8,6 +8,15 @@ namespace BibliotecaAlugueis
 {
     public class Livro
     {
+        public Livro(long numeroTombo, string isbn, string titulo, string genero, DateTime dataPublicacao, string autor)
+        {
+            NumeroTombo = numeroTombo;
+            ISBN = isbn;
+            Titulo = titulo;
+            Genero = genero;
+            DataPublicacao = dataPublicacao;
+            Autor = autor;
+        }
         public long NumeroTombo { get; set; }
         public string ISBN { get; set; }
         public string Titulo { get; set; }
