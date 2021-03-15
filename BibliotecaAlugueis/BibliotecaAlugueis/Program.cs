@@ -16,9 +16,8 @@ namespace BibliotecaAlugueis
     {
         static void Main(string[] args)
         {
-
             List<Cliente> listaClientes = new List<Cliente>();
-
+            List<string> listaCpfCliente = new List<string>();
 
             int escolhaMenu = 0;
 
@@ -33,17 +32,15 @@ namespace BibliotecaAlugueis
                 Console.WriteLine("3- Empréstimo de Livro");
                 Console.WriteLine("4- Devolução de Livro");
                 Console.WriteLine("5- Relatório de Empréstimos e Devoluções");
-
                 Console.Write("\nInforme a opção desejada: ");
                 escolhaMenu = int.Parse(Console.ReadLine());
-
                 Console.WriteLine("");
 
                 switch (escolhaMenu)
                 {
-                    case 1://Cadastro de Cliente
+                    case 1://Cadastro de Cliente OK
                         Console.Clear();
-                        CadastroClienteEndereco(listaClientes);
+                        CadastroClienteEndereco(listaClientes, listaCpfCliente);
                         Console.ReadKey();
                         Console.Clear();
                         break;
@@ -52,8 +49,9 @@ namespace BibliotecaAlugueis
                         listaClientes.ForEach(i => Console.WriteLine(i));
                         Console.ReadKey();
                         break;
-                    case 3:
-                        //Empréstimo de Livro
+                    case 3://Empréstimo de Livro
+
+
                         break;
                     case 4:
                         //Devolução de Livro
@@ -69,16 +67,20 @@ namespace BibliotecaAlugueis
         }
 
         //Função para cadastrar cliente e adicioná-lo na lista
-        public static void CadastroClienteEndereco(List<Cliente> listaClientes)
+        public static void CadastroClienteEndereco(List<Cliente> listaClientes, List<string> listaCpfCliente)
         {
             long idCliente;
             string cpf, nome, telefone, logradouro, bairro, cidade, estado, cep;
             DateTime dataNascimento;
-
             Console.WriteLine("\nPreencha o formulário abaixo com os dados do cliente:");
             Console.Write("\nCPF: ");
             cpf = Console.ReadLine();
-            if (ValidaCpf(listaClientes, cpf) == false)
+            LerArquivo(listaCpfCliente);   
+            if(listaCpfCliente.Contains(cpf))
+            {
+                Console.WriteLine("Cliente já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
+            }
+            else if (ValidaCpf(listaClientes, cpf) == false)
             {
                 Console.Write("Nome: ");
                 nome = Console.ReadLine();
@@ -127,83 +129,38 @@ namespace BibliotecaAlugueis
             return c.IdCliente + ";" + c.CPF + ";" + c.Nome + ";" + c.DataNascimento.ToString("MM/dd/yyyy") + ";" +
                 c.Telefone + ";" + c.Logradouro + ";" + c.Bairro + ";" + c.Cidade + ";" + c.Estado + ";" + c.CEP;
         }
-
         
         //Função para escrever no Arquivo
         public static void EscreveArquivo(List<Cliente> listaClientes)
         {
-            using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv", append: true))
+            using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv", append: true)) //append para pular linha e salvar nova
             {
                 foreach (Cliente c in listaClientes)
                     
-                    file.WriteLine(FormatoArquivoCliente(c)); //Escreve a lista no arquivo separando com quebra de linha
+                    file.WriteLine(FormatoArquivoCliente(c)); 
             }
         }
-        /*
+        
         //Função para ler o Arquivo
-        public static void LerArquivo(List<Cliente> listaClientes)
+        public static List<string> LerArquivo(List<string> listaCpfCliente)
         {
-            // SE O ARQUIVO EXISTIR
+            //Verifica se o arquivo existe
             if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
             {
                 using (var lendo = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
                 {
-                    // VARIAVEIS
-                    long idCliente;
-                    string cpf, nome, telefone, logradouro, bairro, cidade, estado, cep;
-                    DateTime dataNascimento;
-
-                    //List<string> listaArqCliente = new List<string>();
-
-
-                    //CultureInfo CultureBr = new CultureInfo(name: "pt-BR"); // DATA NO FORMATO BRASILEIRO
-
-                    // ENQUANTO ARQUIVO EXISTIR
+                    //Variáveis
+                    string cpf;
+                    //Enquanto existir
                     while (!lendo.EndOfStream)
                     {
-                        var line = lendo.ReadLine();
-                        var values = line.Split(';');
-
-                        cpf = values[0];
-                       
-                        listaArqCliente.Add(values[0]);
-                        listaArqCliente.Add(values[1]);
-                        listaArqCliente.Add(values[2]);
-                        listaArqCliente.Add(values[3]);
-                        listaArqCliente.Add(values[4]);
-                        listaArqCliente.Add(values[5]);
-                        listaArqCliente.Add(values[6]);
-                        listaArqCliente.Add(values[7]);
-                        listaArqCliente.Add(values[8]);
-                        listaArqCliente.Add(values[9]);
-
-
-                        //string line = file.ReadLine(); // ARMAZENA A LINHA EM CARACTERES
-
-                        //ADICIONANDO CLIENTE A LISTA
-                        //listaClientes.Add(new Cliente()
-                        Cliente cliente = new Cliente()
-                        {
-                        IdCliente = idCliente,
-                        CPF = cpf,
-                        Nome = nome,
-                        DataNascimento = Convert.ToDateTime(dataNascimento),
-                        Telefone = telefone,
-                        Logradouro = logradouro,
-                        Bairro = bairro,
-                        Cidade = cidade,
-                        Estado = estado,
-                        CEP = cep,
-                        };
-                        listaClientes.Add(cliente);
+                        var line = lendo.ReadLine().Split(';');
+                        cpf = line[1];
+                        listaCpfCliente.Add(cpf);
                     }
                 }
             }
-        }*/
-
-        //teste2 //LE O ARQUIVO E TRANSFORMA EM LISTA
-        
-
-
+            return listaCpfCliente;
+        }
     }
 }
