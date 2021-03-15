@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 
-
-
-
-
 namespace BibliotecaAlugueis
 {
     class Program
@@ -18,6 +14,8 @@ namespace BibliotecaAlugueis
         {
             List<Cliente> listaClientes = new List<Cliente>();
             List<string> listaCpfCliente = new List<string>();
+            List<Livro> listaLivros = new List<Livro>();
+            List<string> listaIsbnLivro = new List<string>();
 
             int escolhaMenu = 0;
 
@@ -46,15 +44,19 @@ namespace BibliotecaAlugueis
                         break;
                     case 2://Cadastro de Livro
                         Console.Clear();
-                        listaClientes.ForEach(i => Console.WriteLine(i));
+                        CadastroLivro(listaLivros, listaIsbnLivro);
                         Console.ReadKey();
+                        Console.Clear();
                         break;
                     case 3://Empréstimo de Livro
-
+                        Console.Clear();
+                        listaLivros.ForEach(i => Console.WriteLine(i));
+                        Console.ReadKey();
 
                         break;
                     case 4:
                         //Devolução de Livro
+                        
                         break;
                     case 5:
                         //Relatório de Empréstimos e Devoluções
@@ -66,6 +68,8 @@ namespace BibliotecaAlugueis
             Console.ReadKey();
         }
 
+        //CLIENTE
+
         //Função para cadastrar cliente e adicioná-lo na lista
         public static void CadastroClienteEndereco(List<Cliente> listaClientes, List<string> listaCpfCliente)
         {
@@ -75,7 +79,7 @@ namespace BibliotecaAlugueis
             Console.WriteLine("\nPreencha o formulário abaixo com os dados do cliente:");
             Console.Write("\nCPF: ");
             cpf = Console.ReadLine();
-            LerArquivo(listaCpfCliente);   
+            LerArquivoCliente(listaCpfCliente);   
             if(listaCpfCliente.Contains(cpf))
             {
                 Console.WriteLine("Cliente já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
@@ -87,7 +91,6 @@ namespace BibliotecaAlugueis
                 Console.Write("Data de Nascimento(mm/dd/yyyy): ");
                 var entradaData = Console.ReadLine();
                 DateTime.TryParse(entradaData, out dataNascimento);
-                //dataNascimento = DateTime.ParseExact(nasc, "d", CultureBr);
                 Console.Write("Telefone: ");
                 telefone = Console.ReadLine();
                 Console.WriteLine("\nEndereço");
@@ -107,7 +110,7 @@ namespace BibliotecaAlugueis
                 Cliente cliente = new Cliente(idCliente, cpf, nome, dataNascimento, telefone, logradouro, bairro, cidade, estado, cep);
                 listaClientes.Add(cliente);
                 listaClientes = listaClientes.OrderBy(x => x.Nome).ToList();
-                EscreveArquivo(listaClientes);
+                EscreveArquivoCliente(listaClientes);
                 Console.WriteLine($"Cliente cadastrado com sucesso! \nSeu Id é: {cliente.IdCliente}");
             } else Console.WriteLine("Cliente já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
         }
@@ -130,8 +133,8 @@ namespace BibliotecaAlugueis
                 c.Telefone + ";" + c.Logradouro + ";" + c.Bairro + ";" + c.Cidade + ";" + c.Estado + ";" + c.CEP;
         }
         
-        //Função para escrever no Arquivo
-        public static void EscreveArquivo(List<Cliente> listaClientes)
+        //Função para escrever no Arquivo Cliente
+        public static void EscreveArquivoCliente(List<Cliente> listaClientes)
         {
             using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv", append: true)) //append para pular linha e salvar nova
             {
@@ -141,8 +144,8 @@ namespace BibliotecaAlugueis
             }
         }
         
-        //Função para ler o Arquivo
-        public static List<string> LerArquivo(List<string> listaCpfCliente)
+        //Função para ler o Arquivo Cliente(CPF)
+        public static List<string> LerArquivoCliente(List<string> listaCpfCliente)
         {
             //Verifica se o arquivo existe
             if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
@@ -161,6 +164,103 @@ namespace BibliotecaAlugueis
                 }
             }
             return listaCpfCliente;
+        }
+
+
+        //LIVRO
+
+        //Função para cadastrar Livro e adicioná-lo na lista
+        public static void CadastroLivro(List<Livro> listaLivros, List<string> listaIsbnLivro)
+        {
+            long numeroTombo;
+            string isbn, titulo, genero, autor;
+            DateTime dataPublicacao;
+
+            Console.WriteLine("\nPreencha o formulário abaixo com os dados do livro:");
+            Console.Write("\nISBN: ");
+            isbn = Console.ReadLine();
+            LerArquivoLivro(listaIsbnLivro);
+            if (listaIsbnLivro.Contains(isbn))
+            {
+                Console.WriteLine("Livro já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
+            }
+            else if (ValidaIsbn(listaLivros, isbn) == false)
+            {
+                Console.Write("Título: ");
+                titulo = Console.ReadLine();
+                Console.Write("Gênero: ");
+                genero = Console.ReadLine();
+                Console.Write("Data de Publicação(mm/dd/yyyy): ");
+                var entradaDataPubli = Console.ReadLine();
+                DateTime.TryParse(entradaDataPubli, out dataPublicacao);
+                Console.Write("Autor: ");
+                autor = Console.ReadLine();
+                Console.WriteLine("");
+
+                //Método para gerar númerotombo sequencial e automatico
+                if (listaIsbnLivro.Count == 0)
+                {
+                    numeroTombo = 1;
+                }
+                else numeroTombo = listaIsbnLivro.Count + 1;
+
+                Livro livro = new Livro(numeroTombo, isbn, titulo, genero, dataPublicacao, autor);
+                listaLivros.Add(livro);
+                listaLivros = listaLivros.OrderBy(x => x.NumeroTombo).ToList();
+                EscreveArquivoLivro(listaLivros);
+                Console.WriteLine($"Livro cadastrado com sucesso! \nSeu NúmeroTombo é: {livro.NumeroTombo}");
+            }
+            else Console.WriteLine("Livro já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
+        }
+
+        //Função que verifica se o ISBN do livro já está cadastrado
+        public static bool ValidaIsbn(List<Livro> listaLivros, string isbn)
+        {
+            foreach (Livro i in listaLivros)
+            {
+                if (i.ISBN.Equals(isbn))
+                    return true;
+            }
+            return false;
+        }
+
+        //Função que define o formato que o livro será salvo no arquivo
+        private static string FormatoArquivoLivro(Livro l)
+        {
+            return l.NumeroTombo + ";" + l.ISBN + ";" + l.Titulo + ";" + l.Genero + ";" + l.DataPublicacao.ToString("MM/dd/yyyy") + ";" + l.Autor;
+        }
+
+        //Função para escrever no Arquivo Livro
+        public static void EscreveArquivoLivro(List<Livro> listaLivros)
+        {
+            using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv", append: true)) //append para pular linha e salvar nova
+            {
+                foreach (Livro l in listaLivros)
+
+                    file.WriteLine(FormatoArquivoLivro(l));
+            }
+        }
+
+        //Função para ler o Arquivo Livro
+        public static List<string> LerArquivoLivro(List<string> listaIsbnLivro)
+        {
+            //Verifica se o arquivo existe
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+            {
+                using (var lendo2 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+                {
+                    //Variáveis
+                    string isbn;
+                    //Enquanto existir
+                    while (!lendo2.EndOfStream)
+                    {
+                        var line = lendo2.ReadLine().Split(';');
+                        isbn = line[1];
+                        listaIsbnLivro.Add(isbn);
+                    }
+                }
+            }
+            return listaIsbnLivro;
         }
     }
 }
