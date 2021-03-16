@@ -16,6 +16,12 @@ namespace BibliotecaAlugueis
             List<string> listaCpfCliente = new List<string>();
             List<Livro> listaLivros = new List<Livro>();
             List<string> listaIsbnLivro = new List<string>();
+            List<EmprestimoLivro> listaEmprestimo = new List<EmprestimoLivro>();
+            List<long> listaNumeroTomboLivro = new List<long>();
+            List<long> listaIdCliente = new List<long>();
+            List<EmprestimoLivro> listaEmprestimoStatus = new List<EmprestimoLivro>();
+
+            EmprestimoLivro emprestimo = new EmprestimoLivro();
 
             int escolhaMenu = 0;
 
@@ -42,24 +48,34 @@ namespace BibliotecaAlugueis
                         Console.ReadKey();
                         Console.Clear();
                         break;
-                    case 2://Cadastro de Livro
+                    case 2://Cadastro de Livro OK
                         Console.Clear();
+                        LerListaLivro(listaLivros);
                         CadastroLivro(listaLivros, listaIsbnLivro);
                         Console.ReadKey();
                         Console.Clear();
                         break;
-                    case 3://Empréstimo de Livro
+                    case 3://Empréstimo de Livro OK
                         Console.Clear();
-                        listaLivros.ForEach(i => Console.WriteLine(i));
+                        listaLivros = LerListaLivro(listaLivros);
+                        foreach (var item in listaLivros)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        listaEmprestimo = LerArqEmprestimoStatusNt(listaEmprestimo);
+                        foreach (var elemento in listaEmprestimo)
+                        {
+                            Console.WriteLine(elemento);
+                        }    
+                        EmprestimoDeLivro(listaEmprestimo, listaNumeroTomboLivro, listaLivros, listaClientes, listaIdCliente, listaCpfCliente, listaEmprestimoStatus, emprestimo);
                         Console.ReadKey();
+                        Console.Clear();
+                        break;
+                    case 4://Devolução de Livro
 
                         break;
-                    case 4:
-                        //Devolução de Livro
+                    case 5://Relatório de Empréstimos e Devoluções
                         
-                        break;
-                    case 5:
-                        //Relatório de Empréstimos e Devoluções
                         break;
                 }
 
@@ -79,8 +95,8 @@ namespace BibliotecaAlugueis
             Console.WriteLine("\nPreencha o formulário abaixo com os dados do cliente:");
             Console.Write("\nCPF: ");
             cpf = Console.ReadLine();
-            LerArquivoCliente(listaCpfCliente);   
-            if(listaCpfCliente.Contains(cpf))
+            LerArquivoCliente(listaCpfCliente);
+            if (listaCpfCliente.Contains(cpf))
             {
                 Console.WriteLine("Cliente já cadastrado!\nPressione qualquer tecla para voltar ao Menu Principal");
             }
@@ -132,18 +148,18 @@ namespace BibliotecaAlugueis
             return c.IdCliente + ";" + c.CPF + ";" + c.Nome + ";" + c.DataNascimento.ToString("MM/dd/yyyy") + ";" +
                 c.Telefone + ";" + c.Logradouro + ";" + c.Bairro + ";" + c.Cidade + ";" + c.Estado + ";" + c.CEP;
         }
-        
+
         //Função para escrever no Arquivo Cliente
         public static void EscreveArquivoCliente(List<Cliente> listaClientes)
         {
             using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv", append: true)) //append para pular linha e salvar nova
             {
                 foreach (Cliente c in listaClientes)
-                    
-                    file.WriteLine(FormatoArquivoCliente(c)); 
+
+                    file.WriteLine(FormatoArquivoCliente(c));
             }
         }
-        
+
         //Função para ler o Arquivo Cliente(CPF)
         public static List<string> LerArquivoCliente(List<string> listaCpfCliente)
         {
@@ -164,6 +180,49 @@ namespace BibliotecaAlugueis
                 }
             }
             return listaCpfCliente;
+        }
+
+        // Função pra ler arquivo cliente e pegar id
+        public static long LeArquivoSalvaId()
+        {
+            long dadoId = 0;
+            //Verifica se o arquivo existe
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
+            {
+                using (var lendo4 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
+                {
+                    //Enquanto existir
+                    while (!lendo4.EndOfStream)
+                    {
+                        var line = lendo4.ReadLine().Split(';');
+                        dadoId = long.Parse(line[0]);
+                    }
+                }
+            }
+            return dadoId;
+        }
+
+        //Função para ler o Arquivo Cliente(IdCliente)
+        public static List<long> LerArquivoClienteIdCliente(List<long> listaIdCliente, List<Cliente> listaClientes)
+        {
+            //Verifica se o arquivo existe
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
+            {
+                using (var lendo4 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\CLIENTE.csv"))
+                {
+                    //Variáveis
+                    long idCliente;
+
+                    //Enquanto existir
+                    while (!lendo4.EndOfStream)
+                    {
+                        var line = lendo4.ReadLine().Split(';');
+                        idCliente = long.Parse(line[0]);
+                        listaIdCliente.Add(idCliente);
+                    }
+                }
+            }
+            return listaIdCliente;
         }
 
 
@@ -204,7 +263,16 @@ namespace BibliotecaAlugueis
                 }
                 else numeroTombo = listaIsbnLivro.Count + 1;
 
-                Livro livro = new Livro(numeroTombo, isbn, titulo, genero, dataPublicacao, autor);
+                Livro livro = new Livro()
+                {
+                    NumeroTombo = numeroTombo,
+                    ISBN = isbn,
+                    Titulo = titulo,
+                    Genero = genero,
+                    DataPublicacao = DateTime.Parse(entradaDataPubli),
+                    Autor = autor
+                };
+                
                 listaLivros.Add(livro);
                 listaLivros = listaLivros.OrderBy(x => x.NumeroTombo).ToList();
                 EscreveArquivoLivro(listaLivros);
@@ -241,7 +309,7 @@ namespace BibliotecaAlugueis
             }
         }
 
-        //Função para ler o Arquivo Livro
+        //Função para ler o Arquivo Livro(ISBN)
         public static List<string> LerArquivoLivro(List<string> listaIsbnLivro)
         {
             //Verifica se o arquivo existe
@@ -262,5 +330,170 @@ namespace BibliotecaAlugueis
             }
             return listaIsbnLivro;
         }
+
+        //Função para ler o Arquivo Livro
+        public static List<Livro> LerListaLivro(List<Livro> listaLivros)
+        {
+
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+            {
+                using (var lendo7 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+                {
+                    //Enquanto existir
+                    while (!lendo7.EndOfStream)
+                    {
+                        var line = lendo7.ReadLine().Split(';');
+                        Livro objlivro = new Livro()
+                        {
+                            NumeroTombo = long.Parse(line[0]),
+                            ISBN = (line[1]),
+                            Titulo = (line[2]),
+                            Genero = (line[3]),
+                            DataPublicacao = DateTime.Parse(line[4]),
+                            Autor = (line[5])
+                        };
+
+                       
+                        listaLivros.Add(objlivro);
+                    }
+                }
+            }
+            return listaLivros;
+        }
+
+        // Função pra ler arquivo livro e pegar numerotombo
+        public static long LeArquivoSalvaNumeroTombo()
+        {
+            long dadontombo = 0;
+            //Verifica se o arquivo existe
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+            {
+                using (var lendo1 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\LIVRO.csv"))
+                {
+                    //Enquanto existir
+                    while (!lendo1.EndOfStream)
+                    {
+                        var line = lendo1.ReadLine().Split(';');
+                        dadontombo = long.Parse(line[0]);
+                    }
+                }
+            }
+            return dadontombo;
+        }
+
+
+        //EMPRESTIMO LIVRO
+
+        //Função para empréstimo de livro e adicioná-lo na lista
+        public static void EmprestimoDeLivro(List<EmprestimoLivro> listaEmprestimo, List<long> listaNumeroTomboLivro, List<Livro> listaLivros, List<Cliente> listaClientes, List<long> listaIdCliente, List<string> listaCpfCliente, List<EmprestimoLivro> listaEmprestimoStatus, EmprestimoLivro objemprestimo)
+        {
+            long numeroTombo;
+            DateTime dataEmprestimo, dataDevolucao;
+            int statusEmprestimo = 0;
+            string cpf;
+            int tomboEncontrado = 0;
+            int statusEncontrado = 0;
+
+            Console.WriteLine("\n>>> Formulário para Empréstimo de Livro <<<");
+            Console.WriteLine("\n Preencha as informações abaixo:");
+            Console.Write("\nNumeroTombo: ");
+            numeroTombo = long.Parse(Console.ReadLine());
+
+            foreach (var elemento in listaEmprestimo)
+            {
+                if (elemento.NumeroTombo == numeroTombo)
+                {
+                    Console.WriteLine("Livro Emprestado, aguarde devolução!");
+                    statusEncontrado = 1;
+                }
+            }
+            if (statusEncontrado != 1)
+            {
+                for (int i = 0; i < listaLivros.Count; i++)
+                {
+                    if (listaLivros[i].NumeroTombo == numeroTombo)
+                    {
+                        tomboEncontrado++;
+                    }
+                }
+
+                Console.Write("CPF: ");
+                cpf = Console.ReadLine();
+                LerArquivoCliente(listaCpfCliente);
+                if (listaCpfCliente.Contains(cpf))
+                {
+                    dataEmprestimo = DateTime.Now;
+                    Console.Write("Data de Devolução(mm/dd/yyyy): ");
+                    var entradaDataDev = Console.ReadLine();
+                    DateTime.TryParse(entradaDataDev, out dataDevolucao);
+                    Console.WriteLine("");
+                    statusEmprestimo = 1;
+
+
+                    EmprestimoLivro emprestimo = new EmprestimoLivro()
+                    {
+                        IdCliente = LeArquivoSalvaId(),
+                        NumeroTombo = LeArquivoSalvaNumeroTombo(),
+                        DataEmprestimo = dataEmprestimo,
+                        DataDevolucao = dataDevolucao,
+                        StatusEmprestimo = statusEmprestimo
+                    };
+
+                    listaEmprestimo.Add(emprestimo);
+
+                    listaEmprestimo = listaEmprestimo.OrderBy(x => x.DataEmprestimo).ToList();
+                    EscreveArquivoEmprestimo(listaEmprestimo);
+                    Console.WriteLine($"Empréstimo realizado com sucesso!\nPressione qualquer tecla para voltar ao Menu Principal");
+                }
+                else Console.WriteLine("Cliente não cadastrado!");
+            }
+
+        }    
+
+        //Função que define o formato que o empréstimo será salvo no arquivo
+        private static string FormatoArquivoEmprestimo(EmprestimoLivro e)
+        {
+            return e.IdCliente + ";" + e.NumeroTombo + ";" + e.DataEmprestimo.ToString("MM/dd/yyyy") + ";" + e.DataDevolucao.ToString("MM/dd/yyyy") + ";" + e.StatusEmprestimo;
+        }
+
+        //Função para escrever no Arquivo Emprestimo
+        public static void EscreveArquivoEmprestimo(List<EmprestimoLivro> listaEmprestimo)
+        {
+            using (StreamWriter file = new StreamWriter(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\EMPRESTIMO.csv", append: true)) //append para pular linha e salvar nova
+            {
+                foreach (EmprestimoLivro e in listaEmprestimo)
+
+                    file.WriteLine(FormatoArquivoEmprestimo(e));
+            }
+        }
+
+        //Função para ler o Arquivo Emprestimo
+        public static List<EmprestimoLivro> LerArqEmprestimoStatusNt(List<EmprestimoLivro> emprestimoLivros)
+        {
+
+            if (File.Exists(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\EMPRESTIMO.csv"))
+            {
+                using (var lendo5 = new StreamReader(@"C:\Users\maiar\source\repos\mgbatista\Avaliacao-Biblioteca\Arquivos\EMPRESTIMO.csv"))
+                {
+                    //Enquanto existir
+                    while (!lendo5.EndOfStream)
+                    {
+                        var line = lendo5.ReadLine().Split(';');
+                        EmprestimoLivro objemprestimo = new EmprestimoLivro()
+                        {
+                            IdCliente = long.Parse(line[0]),
+                            NumeroTombo = long.Parse(line[1]),
+                            DataEmprestimo = DateTime.Parse(line[2]),
+                            DataDevolucao = DateTime.Parse(line[3]),
+                            StatusEmprestimo = int.Parse(line[4])
+                        };
+
+                        emprestimoLivros.Add(objemprestimo);
+                    }
+                }
+            }
+            return emprestimoLivros;
+        }
+         
     }
 }

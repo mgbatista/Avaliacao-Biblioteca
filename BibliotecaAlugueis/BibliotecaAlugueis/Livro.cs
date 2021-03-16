@@ -8,7 +8,7 @@ namespace BibliotecaAlugueis
 {
     public class Livro
     {
-        public Livro(long numeroTombo, string isbn, string titulo, string genero, DateTime dataPublicacao, string autor)
+       /* public Livro(long numeroTombo, string isbn, string titulo, string genero, DateTime dataPublicacao, string autor)
         {
             NumeroTombo = numeroTombo;
             ISBN = isbn;
@@ -16,7 +16,7 @@ namespace BibliotecaAlugueis
             Genero = genero;
             DataPublicacao = dataPublicacao;
             Autor = autor;
-        }
+        }*/
         public long NumeroTombo { get; set; }
         public string ISBN { get; set; }
         public string Titulo { get; set; }
@@ -27,7 +27,8 @@ namespace BibliotecaAlugueis
 
         public override string ToString()
         {
-            return ("Número Tombo: " + NumeroTombo + "\nISBN: " + ISBN + "\nTítulo: " + Titulo + "Gênero: " + Genero + "Data de Publicação: " + DataPublicacao + "Autor: " + Autor);
+            return ("Número Tombo: " + NumeroTombo + "\nISBN: " + ISBN + "\nTítulo: " + Titulo + "\nGênero: " + Genero + 
+                "\nData de Publicação: " + DataPublicacao + "\nAutor: " + Autor);
         }
     }
 }
